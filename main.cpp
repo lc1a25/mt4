@@ -201,12 +201,14 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		
 		if (gameScene == 1)
 		{
+//ここから課題のプログラム
 			if (input->isKeyTrigger(DIK_SPACE) && shootflag == false)
 			{
-				shootflag = true;
+				shootflag = true;//球を出すフラグ
 			}
 			if (shootflag == true)
 			{
+				//球が飛んでいく
 				accela_x += gravity;
 				accela_y += gravity;
 
@@ -215,6 +217,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			}
 			if (object3d_ene->position.x >= 1280.0f)
 			{
+				//球を戻す
 				object3d_ene->position.x = -92;
 				object3d_ene->position.y = 12;
 				accela_x = 10.0f;
