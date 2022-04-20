@@ -121,14 +121,19 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	Model* model_taihou = Model::LoadFromOBJ("taihou");
 	
 
-	Object3d* object3d_ene = object3d_ene->Create();
+	Object3d* object3d_bullet = object3d_bullet->Create();
 
-	object3d_ene->SetModel(model4);
+	object3d_bullet->SetModel(model4);
 
-	object3d_ene->SetPosition({ -92,12,+60 });
-	object3d_ene->scale.x = 3.8f;
-	object3d_ene->scale.y = 3.8f;
-	object3d_ene->scale.z = 3.8f;
+	object3d_bullet->SetPosition({ -92,12,+60 });
+	object3d_bullet->scale.x = 3.8f;
+	object3d_bullet->scale.y = 3.8f;
+	object3d_bullet->scale.z = 3.8f;
+
+	Object3d* object3d_freeFall = object3d_freeFall->Create();
+
+	object3d_freeFall->SetModel(model4);
+	object3d_freeFall->SetPosition({ -42,+100,+60 });
 
 	Object3d* taihou = taihou->Create();
 	taihou->SetModel(model_taihou);
@@ -167,9 +172,12 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	int gameScene = 1;
 	bool shootflag = false;
 
+	//重力加速度
 	float gravity = 9.8f / 60.0f;
+	//加速度
 	float accela_x = 10.0f;
 	float accela_y = -3.0f;
+	float accelaFree_y = 0.0f;
 
 	sprite->SetPosition({ 1040.0f,130.0f,0.0f });
 	sprite->SetTexsize({440.0f,250.0f });
@@ -201,33 +209,37 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		
 		if (gameScene == 1)
 		{
-//ここから課題のプログラム
+//ここから課題			
 			if (input->isKeyTrigger(DIK_SPACE) && shootflag == false)
 			{
-				shootflag = true;//球を出すフラグ
+				shootflag = true;
 			}
 			if (shootflag == true)
 			{
 				//球が飛んでいく
-				accela_x += gravity;
+				accelaFree_y += gravity;
 				accela_y += gravity;
 
-				object3d_ene->position.x += accela_x;
-				object3d_ene->position.y -= accela_y;
+				object3d_bullet->position.x += accela_x;
+				object3d_bullet->position.y -= accela_y;
+
+				object3d_freeFall->position.y -= accela_y;
 			}
-			if (object3d_ene->position.x >= 1280.0f)
+			if (object3d_bullet->position.x >= 1280.0f)
 			{
 				//球を戻す
-				object3d_ene->position.x = -92;
-				object3d_ene->position.y = 12;
+				object3d_bullet->position.x = -92;
+				object3d_bullet->position.y = 12;
 				accela_x = 10.0f;
 				accela_y = -3.0f;
 				shootflag = false;
 			}
+
 	
 		}
 
-		object3d_ene->Update();
+		object3d_freeFall->Update();
+		object3d_bullet->Update();
 		taihou->Update();
 	
 		dxcommon->BeginDraw();
@@ -238,8 +250,8 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 		Object3d::PreDraw(dxcommon->GetCmdlist());
 		
 	
-
-		object3d_ene->Draw();
+		object3d_freeFall->Draw();
+		object3d_bullet->Draw();
 		taihou->Draw();
 
 
@@ -265,9 +277,9 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	win->WinFinalize();
 
 
-	delete object3d_ene;
+	delete object3d_bullet;
 	delete taihou;
-
+	delete object3d_freeFall;
 
 	//Audio解放
 	audio->Finalize();
