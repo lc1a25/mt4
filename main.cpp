@@ -133,7 +133,7 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	Object3d* object3d_freeFall = object3d_freeFall->Create();
 
 	object3d_freeFall->SetModel(model4);
-	object3d_freeFall->SetPosition({ -42,+100,+60 });
+	object3d_freeFall->SetPosition({ -92,-50,+60 });
 
 	Object3d* taihou = taihou->Create();
 	taihou->SetModel(model_taihou);
@@ -175,9 +175,33 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 	//重力加速度
 	float gravity = 9.8f / 60.0f;
 	//加速度
-	float accela_x = 10.0f;
-	float accela_y = -3.0f;
-	float accelaFree_y = 0.0f;
+	float accela_x = 5.0f;//大砲
+	float accela_y = -3.0f;//大砲
+
+	float vel_yB = 0.0f;
+	
+	//
+	float vel_y = -accela_y;
+	//
+	float k = 1.0f;
+
+	float resi = 0.0f;
+
+	resi = (k * vel_y) / 60;
+	
+
+	bool ecall = false;
+
+	float accelaM_x = 4.0f;//摩擦
+
+	//動摩擦係数
+	float moveFric_ = 0.04f;
+	//動摩擦力
+	float moveFric = 0.0f;
+	//質量
+	float weight = 1.0f;
+
+	moveFric = moveFric_ * weight;
 
 	sprite->SetPosition({ 1040.0f,130.0f,0.0f });
 	sprite->SetTexsize({440.0f,250.0f });
@@ -217,23 +241,51 @@ int WINAPI WinMain(HINSTANCE, HINSTANCE, LPSTR, int)
 			if (shootflag == true)
 			{
 				//球が飛んでいく
-				accelaFree_y += gravity;
-				accela_y += gravity;
+				
+				accela_y += gravity;//重力加速度の加算
+				
+				if (accela_y >= resi  && ecall == false)//落ち始めるときに抵抗力を計算始める
+				{
+					vel_y = -accela_y;
+					resi = (k * vel_y) / 60;
 
+					//accela_y -= accela_y + resi;//抵抗力を減算
+
+					if (gravity <= resi )//重力加速度　と　抵抗力が同じなら　抵抗力を　減算させない
+					{
+						ecall = true;	
+					}
+
+				}
+				if (ecall == true)
+				{
+					//accela_y += accela_y + resi;
+				}
+				vel_yB = accela_y;
 				object3d_bullet->position.x += accela_x;
-				object3d_bullet->position.y -= accela_y;
+				object3d_bullet->position.y -= vel_yB;
 
-				object3d_freeFall->position.y -= accela_y;
+
+
+				//摩擦
+				accelaM_x -= moveFric;
+				object3d_freeFall->position.x += accelaM_x;
+
+				if (accelaM_x <= 0.0f + moveFric)
+				{
+					moveFric = 0;
+					accelaM_x = 0;
+				}
 			}
-			if (object3d_bullet->position.x >= 1280.0f)
-			{
-				//球を戻す
-				object3d_bullet->position.x = -92;
-				object3d_bullet->position.y = 12;
-				accela_x = 10.0f;
-				accela_y = -3.0f;
-				shootflag = false;
-			}
+			//if (object3d_bullet->position.x >= 1280.0f)
+			//{
+			//	//球を戻す
+			//	object3d_bullet->position.x = -92;
+			//	object3d_bullet->position.y = 12;
+			//	accela_x = 10.0f;
+			//	accela_y = -3.0f;
+			//	shootflag = false;
+			//}
 
 	
 		}
